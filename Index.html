@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+<title>Sifat Nazorati — Mijoz Murojaati</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --ink:#101917;
+    --ink-2:#182422;
+    --ink-3:#20302d;
+    --paper:#e7e9e0;
+    --paper-2:#dcdfd4;
+    --amber:#e2971f;
+    --amber-dark:#b9770d;
+    --red:#c4453d;
+    --green:#4f8f63;
+    --text:#ece9de;
+    --text-dim:#93a29c;
+    --text-ink:#1b211f;
+    --text-ink-dim:#5a635e;
+    --line:rgba(236,233,222,0.14);
+    --line-strong:rgba(236,233,222,0.28);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(226,151,31,0.10), transparent 60%),
+      var(--ink);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Big Shoulders Display',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.01em;
+    line-height:0.95;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  .container{max-width:520px;margin:0 auto;padding:28px 18px 60px;}
+  .container.wide{max-width:1100px;}
+
+  /* Eyebrow / stamp badge */
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--amber);
+    border:1px solid rgba(226,151,31,0.4);
+    background:rgba(226,151,31,0.08);
+    padding:5px 11px 5px 9px;
+    border-radius:100px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 3px rgba(226,151,31,0.18);}
+
+  .headline{font-size:clamp(30px,7vw,42px);font-weight:800;color:var(--text);margin:14px 0 10px;}
+  .lede{font-size:15.5px;line-height:1.6;color:var(--text-dim);max-width:46ch;}
+
+  /* Ticket card - signature element */
+  .ticket{
+    position:relative;
+    background:var(--paper);
+    color:var(--text-ink);
+    border-radius:14px;
+    padding:22px 22px 20px;
+    margin-top:16px;
+    box-shadow:0 18px 40px -18px rgba(0,0,0,0.55);
+  }
+  .ticket::before,.ticket::after{
+    content:"";position:absolute;top:50%;transform:translateY(-50%);
+    width:22px;height:22px;border-radius:50%;background:var(--ink);
+  }
+  .ticket::before{left:-11px;}
+  .ticket::after{right:-11px;}
+  .ticket.no-notch::before,.ticket.no-notch::after{display:none;}
+  .perf{
+    border-top:2px dashed rgba(27,33,31,0.22);
+    margin:16px 0;
+  }
+  .ticket-eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;
+    text-transform:uppercase;color:var(--text-ink-dim);
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;
+  }
+  .ticket h3{color:var(--text-ink);font-size:24px;margin:0 0 6px;}
+  .ticket p.sub{color:var(--text-ink-dim);font-size:13.5px;margin:0 0 14px;line-height:1.5;}
+
+  .action-btn{
+    width:100%;text-align:left;
+    background:transparent;
+    border:none;
+    padding:0;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+  }
+  .action-btn .arrow{
+    flex:none;width:34px;height:34px;border-radius:50%;
+    background:var(--ink);color:var(--amber);
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+    transition:transform .15s ease;
+  }
+  .ticket:active .arrow, .ticket:hover .arrow{transform:translateX(3px);}
+
+  /* Contact rows */
+  .contact-row{
+    display:flex;align-items:center;gap:12px;
+    padding:14px 0;border-top:1px solid rgba(27,33,31,0.12);
+  }
+  .contact-row:first-of-type{border-top:none;}
+  .contact-avatar{
+    width:44px;height:44px;border-radius:50%;flex:none;
+    background:var(--ink-3);color:var(--amber);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Big Shoulders Display';font-weight:800;font-size:17px;
+  }
+  .contact-name{font-weight:700;font-size:14.5px;color:var(--text-ink);}
+  .contact-role{font-size:12px;color:var(--text-ink-dim);text-transform:uppercase;letter-spacing:.04em;}
+  .contact-phone{
+    margin-left:auto;flex:none;
+    font-family:'JetBrains Mono';font-size:13.5px;font-weight:600;
+    background:var(--ink);color:var(--text);
+    padding:9px 13px;border-radius:100px;
+    display:flex;align-items:center;gap:7px;
+    text-decoration:none;
+  }
+  .contact-phone:hover{background:var(--amber-dark);}
+
+  /* Form elements */
+  label.field-label{
+    display:block;font-size:12px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--text-ink-dim);margin:0 0 7px;
+  }
+  .field{margin-bottom:16px;}
+  textarea,input[type=tel],input[type=text]{
+    width:100%;border:1.5px solid rgba(27,33,31,0.18);
+    background:#fff;color:var(--text-ink);
+    border-radius:10px;padding:12px 13px;font-size:14.5px;font-family:inherit;
+    outline:none;transition:border-color .15s;
+  }
+  textarea{min-height:96px;resize:vertical;}
+  textarea:focus,input:focus{border-color:var(--amber-dark);}
+
+  .photo-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px;}
+  .photo-thumb{
+    position:relative;width:74px;height:74px;border-radius:10px;overflow:hidden;
+    border:1.5px solid rgba(27,33,31,0.18);
+  }
+  .photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .photo-thumb .rm{
+    position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;
+    background:rgba(20,20,20,0.75);color:#fff;border:none;font-size:12px;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .photo-add{
+    width:74px;height:74px;border-radius:10px;
+    border:1.5px dashed rgba(27,33,31,0.3);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:var(--text-ink-dim);font-size:11px;gap:3px;background:rgba(27,33,31,0.03);
+  }
+
+  .btn-primary{
+    width:100%;padding:14px 18px;border:none;border-radius:11px;
+    background:var(--amber);color:#1b1204;font-weight:700;font-size:14.5px;
+    letter-spacing:.01em;
+    box-shadow:0 8px 20px -8px rgba(226,151,31,0.55);
+  }
+  .btn-primary:disabled{opacity:.5;}
+  .btn-ghost{
+    width:100%;padding:13px 18px;border-radius:11px;
+    background:transparent;border:1.5px solid rgba(27,33,31,0.18);
+    color:var(--text-ink);font-weight:600;font-size:14px;
+  }
+  .btn-back{
+    background:none;border:none;color:var(--text-dim);font-size:13.5px;
+    display:flex;align-items:center;gap:6px;margin-bottom:18px;padding:0;
+    font-weight:600;
+  }
+  .err{color:var(--red);font-size:12.5px;margin-top:6px;font-weight:600;}
+
+  /* Stamp badge for status */
+  .stamp{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'JetBrains Mono';font-weight:700;font-size:11.5px;letter-spacing:.1em;
+    text-transform:uppercase;padding:7px 13px;border-radius:100px;
+    border:1.5px solid currentColor;transform:rotate(-2deg);
+  }
+  .stamp.st-yangi{color:var(--amber-dark);background:rgba(226,151,31,0.12);}
+  .stamp.st-jarayonda{color:#2a6fb0;background:rgba(42,111,176,0.10);}
+  .stamp.st-hal{color:var(--green);background:rgba(79,143,99,0.12);}
+
+  .track-code-box{
+    font-family:'JetBrains Mono';font-weight:700;font-size:22px;letter-spacing:.06em;
+    background:var(--ink);color:var(--amber);padding:14px 16px;border-radius:10px;
+    text-align:center;margin:14px 0;
+  }
+  .copy-row{display:flex;gap:8px;}
+  .copy-row .btn-ghost{flex:1;}
+
+  footer.foot{text-align:center;margin-top:34px;}
+  .staff-link{
+    font-size:12px;color:var(--text-dim);opacity:.6;text-decoration:none;
+    border:none;background:none;font-family:inherit;
+  }
+  .staff-link:hover{opacity:1;}
+
+  /* Admin */
+  .admin-header{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+    margin-bottom:22px;
+  }
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px;}
+  .stat-card{
+    background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:14px 14px;
+  }
+  .stat-num{font-family:'Big Shoulders Display';font-size:30px;font-weight:800;color:var(--text);}
+  .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);}
+  .tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+  .tab-btn{
+    padding:8px 15px;border-radius:100px;border:1px solid var(--line-strong);
+    background:transparent;color:var(--text-dim);font-size:13px;font-weight:600;
+  }
+  .tab-btn.active{background:var(--amber);color:#1b1204;border-color:var(--amber);}
+
+  .admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+  .admin-card{
+    background:var(--paper);color:var(--text-ink);border-radius:12px;padding:16px;
+    cursor:pointer;transition:transform .12s;
+  }
+  .admin-card:hover{transform:translateY(-2px);}
+  .admin-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;}
+  .admin-card .code{font-family:'JetBrains Mono';font-weight:700;font-size:14px;}
+  .admin-card .date{font-size:11px;color:var(--text-ink-dim);}
+  .admin-card .comment-preview{
+    font-size:13.5px;color:var(--text-ink);line-height:1.5;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    margin-bottom:10px;
+  }
+  .admin-card-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .thumb-strip{display:flex;gap:5px;}
+  .thumb-strip img{width:32px;height:32px;border-radius:6px;object-fit:cover;}
+  .phone-chip{
+    font-family:'JetBrains Mono';font-size:12px;color:var(--text-ink-dim);
+  }
+
+  /* modal */
+  .modal-bg{
+    position:fixed;inset:0;background:rgba(10,14,13,0.72);
+    display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;
+    backdrop-filter:blur(2px);
+  }
+  .modal{
+    background:var(--paper);color:var(--text-ink);border-radius:16px;
+    max-width:520px;width:100%;max-height:88vh;overflow-y:auto;padding:24px;
+  }
+  .modal img.full{width:100%;border-radius:10px;margin-bottom:12px;}
+  .modal-close{
+    float:right;background:none;border:none;font-size:20px;color:var(--text-ink-dim);
+  }
+  select.status-select{
+    width:100%;padding:11px;border-radius:10px;border:1.5px solid rgba(27,33,31,0.2);
+    font-family:inherit;font-size:14px;background:#fff;margin-bottom:12px;
+  }
+
+  .passcode-wrap{max-width:340px;margin:80px auto;text-align:center;}
+  .passcode-input{
+    width:100%;text-align:center;font-family:'JetBrains Mono';font-size:22px;letter-spacing:.3em;
+    padding:14px;border-radius:10px;border:1.5px solid var(--line-strong);
+    background:var(--ink-2);color:var(--text);margin:16px 0;outline:none;
+  }
+  .passcode-input:focus{border-color:var(--amber);}
+
+  .link-box{
+    font-family:'JetBrains Mono';font-size:12.5px;background:var(--ink-2);
+    border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+    word-break:break-all;color:var(--text-dim);margin-bottom:10px;
+  }
+  .qr-panel{
+    background:var(--paper);border-radius:14px;padding:22px;text-align:center;color:var(--text-ink);
+    margin-top:16px;
+  }
+  #qrcode-box{display:inline-block;padding:14px;background:#fff;border-radius:10px;margin:12px 0;}
+
+  .empty-state{
+    text-align:center;padding:60px 20px;color:var(--text-dim);
+  }
+  .empty-state .big{font-size:38px;margin-bottom:10px;}
+
+  .track-input-row{display:flex;gap:8px;}
+  .track-input-row input{flex:1;text-transform:uppercase;}
+  .track-input-row button{
+    flex:none;background:var(--ink-3);color:var(--text);border:1px solid var(--line-strong);
+    border-radius:10px;padding:0 16px;font-weight:600;font-size:13px;
+  }
+
+  @media(max-width:520px){
+    .stats-row{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const ADMIN_PASS_DEFAULT = "2024"; // Birinchi marta ishga tushirilganda ishlatiladigan boshlang'ich kod
+
+async function getAdminPass(){
+  return lsGet('admin_pass') || ADMIN_PASS_DEFAULT;
+}
+async function setAdminPass(newPass){
+  lsSet('admin_pass', newPass);
+}
+const AUTO_DELETE_MS = 2 * 24 * 60 * 60 * 1000; // "Hal qilindi" bo'lgandan 2 kun o'tgach avtomatik o'chiriladi
+let state = {
+  view: 'home', // home | contact | report | ticket_done | track | admin_gate | admin
+  photos: [], // {dataUrl}
+  submitting:false,
+  formError:'',
+  ticketCode:'',
+  myTickets: [],
+  myTicketsLoading: false,
+  adminPassInput:'',
+  adminError:'',
+  adminTab:'barchasi', // barchasi|yangi|jarayonda|hal
+  adminItems:[], // loaded complaints
+  adminLoading:false,
+  adminModalCode:null,
+  adminModalStatus:'',
+  adminModalNote:'',
+  qrGenerated:false,
+};
+
+function el(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstChild; }
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtDate(ts){
+  const d = new Date(ts);
+  return d.toLocaleDateString('uz-UZ',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + d.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'});
+}
+function statusLabel(s){
+  return s==='yangi' ? 'Yangi' : s==='jarayonda' ? 'Jarayonda' : 'Hal qilindi';
+}
+function statusClass(s){
+  return s==='yangi' ? 'st-yangi' : s==='jarayonda' ? 'st-jarayonda' : 'st-hal';
+}
+function expiryNote(item){
+  if(item.status !== 'hal' || !item.resolvedAt) return '';
+  const msLeft = (item.resolvedAt + AUTO_DELETE_MS) - Date.now();
+  if(msLeft <= 0) return 'Arxivlanmoqda…';
+  const hrsLeft = Math.ceil(msLeft/(60*60*1000));
+  if(hrsLeft <= 24) return `${hrsLeft} soatdan keyin o'chiriladi`;
+  return `${Math.ceil(hrsLeft/24)} kundan keyin o'chiriladi`;
+}
+
+/* ---------- localStorage helpers ---------- */
+function lsGet(key){ try{ const v=localStorage.getItem(key); return v?JSON.parse(v):null; }catch(e){ return null; } }
+function lsSet(key,val){ try{ localStorage.setItem(key,JSON.stringify(val)); return true; }catch(e){ console.error(e); return false; } }
+function lsDel(key){ try{ localStorage.removeItem(key); }catch(e){ console.error(e); } }
+
+async function getIndex(){
+  return lsGet('complaint_index') || [];
+}
+async function saveIndex(arr){
+  lsSet('complaint_index', arr);
+}
+async function getComplaint(code){
+  return lsGet('complaint:'+code);
+}
+async function saveComplaint(code, obj){
+  return lsSet('complaint:'+code, obj);
+}
+
+async function addMyTicket(code){
+  let codes = lsGet('my_tickets') || [];
+  codes.unshift(code);
+  lsSet('my_tickets', codes);
+}
+
+async function loadMyTickets(){
+  state.myTicketsLoading = true;
+  render();
+  let codes = lsGet('my_tickets') || [];
+  const results = [];
+  for(const code of codes){
+    const c = await getComplaint(code);
+    if(c) results.push(c);
+  }
+  results.sort((a,b)=>b.createdAt-a.createdAt);
+  state.myTickets = results;
+  state.myTicketsLoading = false;
+  render();
+}
+
+function generateCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s='';
+  for(let i=0;i<6;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+  return 'NZ-'+s;
+}
+
+/* ---------- image compression ---------- */
+function compressImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const maxW = 900;
+        const scale = Math.min(1, maxW/img.width);
+        const w = Math.round(img.width*scale), h = Math.round(img.height*scale);
+        const canvas = document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg',0.68));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ---------- render root ---------- */
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  let node;
+  switch(state.view){
+    case 'home': node = renderHome(); break;
+    case 'contact': node = renderContact(); break;
+    case 'report': node = renderReport(); break;
+    case 'ticket_done': node = renderTicketDone(); break;
+    case 'admin_gate': node = renderAdminGate(); break;
+    case 'admin': node = renderAdmin(); break;
+    default: node = renderHome();
+  }
+  app.appendChild(node);
+  if(state.view==='admin' && document.getElementById('qrcode-box') && !state.qrGenerated){
+    generateQR();
+  }
+}
+
+/* ---------- HOME ---------- */
+function renderHome(){
+  const wrap = el(`<div class="container">
+    <span class="eyebrow"><span class="dot"></span>Nazorat punkti · Mijoz murojaati</span>
+    <h1 class="headline">Muammo bormi?</h1>
+    <p class="lede">Assalomu alaykum, hurmatli mijoz! Biz sizni qadrlaymiz va bizga ishonch bildirganingiz uchun rahmat aytamiz. Mahsulotimizda qandaydir kamchiliklar uchragan bo'lsa, iltimos, biz bilan bog'laning.</p>
+
+    <div class="ticket" id="btn-contact" style="margin-top:26px;">
+      <div class="ticket-eyebrow"><span>Bo'lim 01</span><span>Aloqa</span></div>
+      <button class="action-btn">
+        <div>
+          <h3>Bog'lanish</h3>
+          <p class="sub">Menejer yoki yordamchi bilan to'g'ridan-to'g'ri telefon orqali bog'laning.</p>
+        </div>
+        <span class="arrow">→</span>
+      </button>
+    </div>
+
+    <div class="ticket" id="btn-report" style="margin-top:16px;">
+      <div class="ticket-eyebrow"><span>Bo'lim 02</span><span>Murojaat</span></div>
+      <button class="action-btn">
+        <div>
+          <h3>Muammoni yuborish</h3>
+          <p class="sub">Izoh yozing, kerak bo'lsa rasm biriktiring — arizangiz holatini shu yerning o'zida ko'rib turasiz.</p>
+        </div>
+        <span class="arrow">→</span>
+      </button>
+    </div>
+
+    <footer class="foot">
+      <button class="staff-link" id="btn-staff">Xodimlar uchun panel →</button>
+    </footer>
+  </div>`);
+  wrap.querySelector('#btn-contact').onclick = ()=>{ state.view='contact'; render(); };
+  wrap.querySelector('#btn-report').onclick = ()=>{ state.view='report'; state.photos=[]; state.formError=''; render(); loadMyTickets(); };
+  wrap.querySelector('#btn-staff').onclick = ()=>{ state.view='admin_gate'; state.adminError=''; state.adminPassInput=''; render(); };
+  return wrap;
+}
+
+function backBtn(label, cb){
+  const b = el(`<button class="btn-back">← ${esc(label)}</button>`);
+  b.onclick = cb;
+  return b;
+}
+
+/* ---------- CONTACT ---------- */
+function renderContact(){
+  const wrap = el(`<div class="container"></div>`);
+  wrap.appendChild(backBtn('Bosh sahifa', ()=>{ state.view='home'; render(); }));
+  wrap.appendChild(el(`<span class="eyebrow"><span class="dot"></span>Bo'lim 01</span>`));
+  wrap.appendChild(el(`<h1 class="headline" style="font-size:30px;">Biz bilan bog'laning</h1>`));
+  const ticket = el(`<div class="ticket no-notch" style="margin-top:18px;">
+    <div class="ticket-eyebrow"><span>Ish vaqti</span><span>09:00 – 18:00</span></div>
+    <div class="contact-row">
+      <div class="contact-avatar">YM</div>
+      <div>
+        <div class="contact-name">Yulchiyev Mirzoxidjon</div>
+        <div class="contact-role">Menejer</div>
+      </div>
+      <a class="contact-phone" href="tel:+998950708124">☎ +998 95 070 81 24</a>
+    </div>
+    <div class="contact-row">
+      <div class="contact-avatar">SA</div>
+      <div>
+        <div class="contact-name">Sharipov Akmaljon</div>
+        <div class="contact-role">Yordamchi</div>
+      </div>
+      <a class="contact-phone" href="tel:+998975577711">☎ +998 97 557 77 11</a>
+    </div>
+  </div>`);
+  wrap.appendChild(ticket);
+  wrap.appendChild(el(`<p class="lede" style="margin-top:16px;font-size:13.5px;">Raqamga bosing — telefon qo'ng'iroq ekrani avtomatik ochiladi.</p>`));
+  return wrap;
+}
+
+function renderMyTickets(){
+  const box = el(`<div></div>`);
+  if(state.myTicketsLoading){
+    box.appendChild(el(`<p class="lede" style="margin-top:16px;">Arizalaringiz yuklanmoqda...</p>`));
+    return box;
+  }
+  if(state.myTickets.length === 0) return box;
+
+  box.appendChild(el(`<p class="lede" style="margin-top:16px;font-size:13px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;">Sizning arizalaringiz</p>`));
+  state.myTickets.forEach(t=>{
+    const card = el(`<div class="ticket no-notch" style="margin-top:10px;padding:16px 18px;">
+      <div class="ticket-eyebrow"><span class="mono">${t.code}</span><span>${fmtDate(t.createdAt)}</span></div>
+      <div style="margin:8px 0;"><span class="stamp ${statusClass(t.status)}">${statusLabel(t.status)}</span></div>
+      <p class="sub" style="margin:0;">${esc(t.comment)}</p>
+      ${t.note ? `<p class="sub" style="margin:8px 0 0;font-weight:700;color:var(--text-ink);">Bizning javobimiz:</p><p class="sub" style="margin-top:2px;">${esc(t.note)}</p>` : ''}
+    </div>`);
+    box.appendChild(card);
+  });
+  return box;
+}
+
+/* ---------- REPORT ---------- */
+function renderReport(){
+  const wrap = el(`<div class="container"></div>`);
+  wrap.appendChild(backBtn('Bosh sahifa', ()=>{ state.view='home'; render(); }));
+  wrap.appendChild(el(`<span class="eyebrow"><span class="dot"></span>Bo'lim 02</span>`));
+  wrap.appendChild(el(`<h1 class="headline" style="font-size:30px;">Muammoni tasvirlab bering</h1>`));
+
+  wrap.appendChild(renderMyTickets());
+
+  if(state.myTickets.length > 0 || state.myTicketsLoading){
+    wrap.appendChild(el(`<p class="lede" style="margin-top:22px;font-size:13px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;">Yangi murojaat yuborish</p>`));
+  }
+
+  const ticket = el(`<div class="ticket no-notch" style="margin-top:12px;">
+    <div class="field">
+      <label class="field-label">Rasm (ixtiyoriy, 3 tagacha)</label>
+      <div class="photo-row" id="photo-row"></div>
+      <input type="file" accept="image/*" id="photo-input" style="display:none" multiple>
+    </div>
+    <div class="field">
+      <label class="field-label">Muammo izohi</label>
+      <textarea id="comment-field" placeholder="Mahsulotda nima noto'g'ri ekanini yozing..."></textarea>
+    </div>
+    <div class="field">
+      <label class="field-label">Telefon raqamingiz</label>
+      <input type="tel" id="phone-field" placeholder="+998 90 123 45 67">
+    </div>
+    <div id="form-err"></div>
+    <button class="btn-primary" id="submit-btn">Yuborish</button>
+  </div>`);
+  wrap.appendChild(ticket);
+
+  function renderPhotoRow(){
+    const row = ticket.querySelector('#photo-row');
+    row.innerHTML='';
+    state.photos.forEach((p,i)=>{
+      const th = el(`<div class="photo-thumb"><img src="${p}"><button class="rm">✕</button></div>`);
+      th.querySelector('.rm').onclick = ()=>{ state.photos.splice(i,1); renderPhotoRow(); };
+      row.appendChild(th);
+    });
+    if(state.photos.length < 3){
+      const add = el(`<div class="photo-add">📷<span>Qo'shish</span></div>`);
+      add.onclick = ()=> ticket.querySelector('#photo-input').click();
+      row.appendChild(add);
+    }
+  }
+  renderPhotoRow();
+
+  ticket.querySelector('#photo-input').onchange = async (e)=>{
+    const files = Array.from(e.target.files).slice(0, 3-state.photos.length);
+    for(const f of files){
+      try{ const durl = await compressImage(f); state.photos.push(durl); }catch(err){ console.error(err); }
+    }
+    renderPhotoRow();
+    e.target.value='';
+  };
+
+  ticket.querySelector('#submit-btn').onclick = async ()=>{
+    const comment = ticket.querySelector('#comment-field').value.trim();
+    const phone = ticket.querySelector('#phone-field').value.trim();
+    const errBox = ticket.querySelector('#form-err');
+    errBox.innerHTML='';
+    if(!comment){ errBox.appendChild(el(`<div class="err">Iltimos, muammoni izohlab yozing.</div>`)); return; }
+    if(!phone || phone.replace(/\D/g,'').length < 9){ errBox.appendChild(el(`<div class="err">Iltimos, to'g'ri telefon raqam kiriting.</div>`)); return; }
+
+    const btn = ticket.querySelector('#submit-btn');
+    btn.disabled = true; btn.textContent = 'Yuborilmoqda...';
+
+    const code = generateCode();
+    const entry = { code, phone, comment, photos: state.photos.slice(), status:'yangi', note:'', createdAt: Date.now() };
+    const ok = await saveComplaint(code, entry);
+    if(ok){
+      const idx = await getIndex();
+      idx.unshift(code);
+      await saveIndex(idx);
+      await addMyTicket(code);
+      state.ticketCode = code;
+      state.myTickets.unshift(entry);
+      state.view = 'ticket_done';
+      render();
+    }else{
+      btn.disabled=false; btn.textContent='Yuborish';
+      errBox.appendChild(el(`<div class="err">Xatolik yuz berdi. Qaytadan urinib ko'ring.</div>`));
+    }
+  };
+
+  return wrap;
+}
+
+function renderTicketDone(){
+  const code = state.ticketCode;
+  const wrap = el(`<div class="container">
+    <span class="eyebrow"><span class="dot"></span>Qabul qilindi</span>
+    <h1 class="headline" style="font-size:30px;">Rahmat! Arizangiz qabul qilindi.</h1>
+    <p class="lede">Arizangiz qabul qilindi. Holatini har safar "Muammoni yuborish" bo'limiga kirganingizda shu yerning o'zida avtomatik ko'rasiz — kodni alohida kiritishingiz shart emas. Xohlasangiz, kuzatuv raqamini pastda saqlab qo'yishingiz mumkin.</p>
+    <div class="ticket no-notch" style="margin-top:18px;text-align:center;">
+      <div class="ticket-eyebrow" style="justify-content:center;">Kuzatuv raqami</div>
+      <div class="track-code-box">${code}</div>
+      <div class="copy-row">
+        <button class="btn-ghost" id="copy-btn">Nusxalash</button>
+        <button class="btn-ghost" id="home-btn" style="background:var(--ink);color:var(--text);border-color:var(--ink);">Bosh sahifa</button>
+      </div>
+    </div>
+  </div>`);
+  wrap.querySelector('#copy-btn').onclick = async ()=>{
+    try{ await navigator.clipboard.writeText(code); const b=wrap.querySelector('#copy-btn'); b.textContent='Nusxalandi ✓'; setTimeout(()=>b.textContent='Nusxalash',1500);}catch(e){}
+  };
+  wrap.querySelector('#home-btn').onclick = ()=>{ state.view='home'; render(); };
+  return wrap;
+}
+
+/* ---------- ADMIN GATE ---------- */
+function renderAdminGate(){
+  const wrap = el(`<div class="container">
+    <div class="passcode-wrap">
+      <span class="eyebrow"><span class="dot"></span>Xodimlar uchun</span>
+      <h1 class="headline" style="font-size:26px;">Kirish kodi</h1>
+      <input type="password" class="passcode-input" id="pass-input" maxlength="32" placeholder="Kirish kodi">
+      <div id="pass-err"></div>
+      <button class="btn-primary" id="pass-go">Kirish</button>
+      <div style="margin-top:16px;"><button class="staff-link" id="pass-back">← Bosh sahifaga qaytish</button></div>
+    </div>
+  </div>`);
+  const doLogin = async ()=>{
+    const val = wrap.querySelector('#pass-input').value;
+    const btn = wrap.querySelector('#pass-go');
+    btn.disabled = true; btn.textContent = 'Tekshirilmoqda...';
+    const correct = await getAdminPass();
+    btn.disabled = false; btn.textContent = 'Kirish';
+    if(val === correct){
+      state.view='admin'; state.adminTab='barchasi'; state.qrGenerated=false; render(); loadAdminData();
+    }else{
+      wrap.querySelector('#pass-err').innerHTML = `<p class="err">Kod noto'g'ri. Qayta urining.</p>`;
+    }
+  };
+  wrap.querySelector('#pass-go').onclick = doLogin;
+  wrap.querySelector('#pass-input').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+  wrap.querySelector('#pass-back').onclick = ()=>{ state.view='home'; render(); };
+  return wrap;
+}
+
+/* ---------- ADMIN ---------- */
+function renderAdmin(){
+  const wrap = el(`<div class="container wide"></div>`);
+  wrap.appendChild(el(`
+    <div class="admin-header">
+      <div>
+        <span class="eyebrow"><span class="dot"></span>Xodimlar paneli</span>
+        <h1 class="headline" style="font-size:28px;margin-top:8px;">Kelib tushgan murojaatlar</h1>
+      </div>
+      <button class="staff-link" id="admin-logout" style="opacity:.8;">Chiqish →</button>
+    </div>
+  `));
+  wrap.querySelector('#admin-logout').onclick = ()=>{ state.view='home'; render(); };
+
+  const items = state.adminItems;
+  const counts = {
+    barchasi: items.length,
+    yangi: items.filter(i=>i.status==='yangi').length,
+    jarayonda: items.filter(i=>i.status==='jarayonda').length,
+    hal: items.filter(i=>i.status==='hal').length,
+  };
+  wrap.appendChild(el(`
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num">${counts.barchasi}</div><div class="stat-label">Jami</div></div>
+      <div class="stat-card"><div class="stat-num">${counts.yangi}</div><div class="stat-label">Yangi</div></div>
+      <div class="stat-card"><div class="stat-num">${counts.jarayonda}</div><div class="stat-label">Jarayonda</div></div>
+      <div class="stat-card"><div class="stat-num">${counts.hal}</div><div class="stat-label">Hal qilindi</div></div>
+    </div>
+  `));
+
+  const tabs = el(`<div class="tabs">
+    <button class="tab-btn ${state.adminTab==='barchasi'?'active':''}" data-tab="barchasi">Barchasi</button>
+    <button class="tab-btn ${state.adminTab==='yangi'?'active':''}" data-tab="yangi">Yangi</button>
+    <button class="tab-btn ${state.adminTab==='jarayonda'?'active':''}" data-tab="jarayonda">Jarayonda</button>
+    <button class="tab-btn ${state.adminTab==='hal'?'active':''}" data-tab="hal">Hal qilindi</button>
+    <button class="tab-btn" data-tab="qr" style="margin-left:auto;">🔗 Havola va QR-kod</button>
+    <button class="tab-btn" data-tab="settings">⚙️ Sozlamalar</button>
+  </div>`);
+  tabs.querySelectorAll('.tab-btn').forEach(b=>{
+    b.onclick = ()=>{ state.adminTab = b.dataset.tab; render(); };
+  });
+  wrap.appendChild(tabs);
+
+  if(state.adminTab === 'qr'){
+    wrap.appendChild(renderQrPanel());
+    return wrap;
+  }
+  if(state.adminTab === 'settings'){
+    wrap.appendChild(renderSettingsPanel());
+    return wrap;
+  }
+
+  if(state.adminLoading){
+    wrap.appendChild(el(`<div class="empty-state"><div class="big">⏳</div>Murojaatlar yuklanmoqda...</div>`));
+    return wrap;
+  }
+
+  const filtered = state.adminTab==='barchasi' ? items : items.filter(i=>i.status===state.adminTab);
+  if(filtered.length===0){
+    wrap.appendChild(el(`<div class="empty-state"><div class="big">📭</div>Bu bo'limda hozircha murojaat yo'q.</div>`));
+    return wrap;
+  }
+
+  const grid = el(`<div class="admin-grid"></div>`);
+  filtered.forEach(item=>{
+    const card = el(`<div class="admin-card">
+      <div class="admin-card-top">
+        <span class="code">${item.code}</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="stamp ${statusClass(item.status)}" style="transform:none;font-size:10px;padding:4px 9px;">${statusLabel(item.status)}</span>
+          <button class="card-delete" title="Arizani o'chirish" style="border:none;background:rgba(196,69,61,0.12);color:var(--red);width:26px;height:26px;border-radius:50%;font-size:13px;line-height:1;">🗑</button>
+        </div>
+      </div>
+      <div class="date">${fmtDate(item.createdAt)}</div>
+      <div class="comment-preview" style="margin-top:8px;">${esc(item.comment)}</div>
+      <div class="admin-card-bottom">
+        <span class="phone-chip">${esc(item.phone)}</span>
+        <div class="thumb-strip">${(item.photos||[]).slice(0,3).map(p=>`<img src="${p}">`).join('')}</div>
+      </div>
+      ${expiryNote(item) ? `<div style="margin-top:8px;font-size:11px;color:var(--text-ink-dim);font-family:'JetBrains Mono';">⏳ ${expiryNote(item)}</div>` : ''}
+    </div>`);
+    card.querySelector('.card-delete').onclick = async (e)=>{
+      e.stopPropagation();
+      const ok = await customConfirm(`<strong>${item.code}</strong> raqamli arizani butunlay o'chirmoqchimisiz?<br>Bu amalni orqaga qaytarib bo'lmaydi.`);
+      if(!ok) return;
+      await deleteComplaintPermanently(item.code);
+      state.adminItems = state.adminItems.filter(i=>i.code!==item.code);
+      render();
+    };
+    card.onclick = ()=>{ state.adminModalCode = item.code; state.adminModalStatus = item.status; state.adminModalNote = item.note||''; render(); };
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+
+  if(state.adminModalCode){
+    wrap.appendChild(renderAdminModal());
+  }
+
+  return wrap;
+}
+
+function renderQrPanel(){
+  const savedUrl = lsGet('qr_custom_url') || '';
+  const url = savedUrl || location.href;
+  const isFile = url.startsWith('file://');
+  const panel = el(`<div class="qr-panel" style="text-align:left;">
+    <h3 style="color:var(--text-ink);font-size:20px;margin:0 0 6px;">Mahsulot yorlig'i uchun QR-kod</h3>
+    <p class="sub">QR-kod skanerlanganda ochilishi kerak bo'lgan to'liq havolani kiriting. Masalan: <strong>https://sizningsayt.uz/nazorat</strong></p>
+    ${isFile ? `<div style="background:rgba(196,69,61,0.1);border:1px solid rgba(196,69,61,0.4);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:#c4453d;"><strong>⚠️ Diqqat:</strong> Hozir fayl kompyuterdan ochilgan (file://...). Telefon bu manzilni ochib bera olmaydi. Saytga joylang yoki quyida to'g'ri havola kiriting.</div>` : ''}
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <input type="url" id="qr-url-input" placeholder="https://saytingiz.uz/nazorat" value="${esc(savedUrl)}"
+        style="flex:1;border:1.5px solid rgba(27,33,31,0.18);background:#fff;color:var(--text-ink);border-radius:10px;padding:11px 13px;font-size:14px;font-family:'JetBrains Mono';">
+      <button class="btn-primary" id="qr-url-save" style="max-width:100px;padding:11px 14px;">Yangilash</button>
+    </div>
+    <div class="link-box" id="qr-url-show" style="color:var(--text-ink-dim);background:rgba(27,33,31,0.06);margin-bottom:8px;">${esc(url)}</div>
+    <button class="btn-ghost" id="copy-link" style="margin-bottom:12px;">Havolani nusxalash</button>
+    <div style="text-align:center;">
+      <div id="qrcode-box"></div>
+      <br>
+      <button class="btn-primary" id="dl-qr" style="max-width:220px;">⬇ QR-kodni yuklab olish</button>
+    </div>
+  </div>`);
+
+  function rebuildQR(){
+    const curUrl = panel.querySelector('#qr-url-input').value.trim() || location.href;
+    panel.querySelector('#qr-url-show').textContent = curUrl;
+    const box = panel.querySelector('#qrcode-box');
+    box.innerHTML = '';
+    new QRCode(box, { text: curUrl, width:220, height:220, colorDark:'#101917', colorLight:'#ffffff' });
+  }
+
+  panel.querySelector('#qr-url-save').onclick = ()=>{
+    const val = panel.querySelector('#qr-url-input').value.trim();
+    lsSet('qr_custom_url', val);
+    rebuildQR();
+    const btn = panel.querySelector('#qr-url-save');
+    btn.textContent = '✓ Saqlandi'; setTimeout(()=>btn.textContent='Yangilash', 1500);
+  };
+
+  panel.querySelector('#copy-link').onclick = async ()=>{
+    const curUrl = panel.querySelector('#qr-url-show').textContent;
+    try{ await navigator.clipboard.writeText(curUrl); const b=panel.querySelector('#copy-link'); b.textContent='Nusxalandi ✓'; setTimeout(()=>b.textContent='Havolani nusxalash',1500);}catch(e){}
+  };
+  panel.querySelector('#dl-qr').onclick = ()=>{
+    const canvas = panel.querySelector('#qrcode-box canvas');
+    if(!canvas) return;
+    const link = document.createElement('a');
+    link.download = 'mahsulot-qr-kod.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+
+  setTimeout(rebuildQR, 50);
+  return panel;
+}
+
+function renderSettingsPanel(){
+  const panel = el(`<div class="qr-panel" style="text-align:left;">
+    <h3 style="color:var(--text-ink);font-size:20px;margin:0 0 6px;">Kirish kodini o'zgartirish</h3>
+    <p class="sub">Xodimlar paneliga kirish uchun ishlatiladigan kodni shu yerdan yangilang. Kod uzunroq va faqat sizga ma'lum bo'lishi tavsiya etiladi.</p>
+
+    <label class="field-label">Yangi kod</label>
+    <input type="text" id="new-pass" placeholder="masalan: nazorat-2026" maxlength="32" style="margin-bottom:14px;width:100%;border:1.5px solid rgba(27,33,31,0.18);background:#fff;color:var(--text-ink);border-radius:10px;padding:12px 13px;font-size:14.5px;font-family:'JetBrains Mono';">
+
+    <label class="field-label">Yangi kodni tasdiqlang</label>
+    <input type="text" id="confirm-pass" placeholder="kodni qayta kiriting" maxlength="32" style="margin-bottom:8px;width:100%;border:1.5px solid rgba(27,33,31,0.18);background:#fff;color:var(--text-ink);border-radius:10px;padding:12px 13px;font-size:14.5px;font-family:'JetBrains Mono';">
+
+    <div id="settings-msg" style="margin-bottom:10px;"></div>
+    <button class="btn-primary" id="save-pass" style="max-width:260px;">Kodni saqlash</button>
+  </div>`);
+
+  panel.querySelector('#save-pass').onclick = async ()=>{
+    const p1 = panel.querySelector('#new-pass').value.trim();
+    const p2 = panel.querySelector('#confirm-pass').value.trim();
+    const msg = panel.querySelector('#settings-msg');
+    msg.innerHTML = '';
+    if(p1.length < 4){ msg.innerHTML = `<p class="err" style="margin:0;">Kod kamida 4 ta belgidan iborat bo'lishi kerak.</p>`; return; }
+    if(p1 !== p2){ msg.innerHTML = `<p class="err" style="margin:0;">Ikkala kod bir xil emas. Qayta tekshiring.</p>`; return; }
+    const btn = panel.querySelector('#save-pass');
+    btn.disabled = true; btn.textContent = 'Saqlanmoqda...';
+    await setAdminPass(p1);
+    btn.disabled = false; btn.textContent = 'Kodni saqlash';
+    msg.innerHTML = `<p class="sub" style="margin:0;color:var(--green);font-weight:700;">✓ Kod yangilandi. Keyingi safar shu kod bilan kiring.</p>`;
+    panel.querySelector('#new-pass').value = '';
+    panel.querySelector('#confirm-pass').value = '';
+  };
+  return panel;
+}
+
+function generateQR(){
+  // QR is now built inside renderQrPanel when tab is opened
+  state.qrGenerated = true;
+}
+
+function renderAdminModal(){
+  const item = state.adminItems.find(i=>i.code===state.adminModalCode);
+  if(!item) return el('<div></div>');
+  const bg = el(`<div class="modal-bg"></div>`);
+  const modal = el(`<div class="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div class="ticket-eyebrow"><span>${item.code}</span><span>${fmtDate(item.createdAt)}</span></div>
+    ${(item.photos||[]).map(p=>`<img class="full" src="${p}">`).join('')}
+    <p class="sub" style="font-weight:700;color:var(--text-ink);margin-bottom:4px;">Mijoz izohi</p>
+    <p class="sub" style="margin-top:0;">${esc(item.comment)}</p>
+    <p class="sub" style="font-weight:700;color:var(--text-ink);margin-bottom:4px;">Telefon</p>
+    <p class="sub" style="margin-top:0;"><a href="tel:${esc(item.phone)}" class="mono">${esc(item.phone)}</a></p>
+
+    <label class="field-label">Holatni o'zgartirish</label>
+    <select class="status-select" id="modal-status">
+      <option value="yangi" ${item.status==='yangi'?'selected':''}>Yangi</option>
+      <option value="jarayonda" ${item.status==='jarayonda'?'selected':''}>Jarayonda</option>
+      <option value="hal" ${item.status==='hal'?'selected':''}>Hal qilindi</option>
+    </select>
+    <label class="field-label">Mijozga javob / izoh (ixtiyoriy)</label>
+    <textarea id="modal-note" placeholder="Mijozga ko'rinadigan javob...">${esc(item.note||'')}</textarea>
+    ${expiryNote(item) ? `<p class="sub" style="margin-top:0;">⏳ Bu ariza ${expiryNote(item)} (hal qilingandan 2 kun o'tgach avtomatik o'chadi).</p>` : ''}
+    <button class="btn-primary" id="modal-save" style="margin-top:14px;">Saqlash</button>
+    <button class="btn-ghost" id="modal-delete" style="margin-top:10px;border-color:var(--red);color:var(--red);">Arizani butunlay o'chirish</button>
+  </div>`);
+  bg.appendChild(modal);
+  bg.onclick = (e)=>{ if(e.target===bg){ state.adminModalCode=null; render(); } };
+  modal.querySelector('#modal-close').onclick = ()=>{ state.adminModalCode=null; render(); };
+  modal.querySelector('#modal-delete').onclick = async ()=>{
+    const ok = await customConfirm(`<strong>${item.code}</strong> raqamli arizani butunlay o'chirmoqchimisiz?<br>Bu amalni orqaga qaytarib bo'lmaydi.`);
+    if(!ok) return;
+    await deleteComplaintPermanently(item.code);
+    state.adminItems = state.adminItems.filter(i=>i.code!==item.code);
+    state.adminModalCode = null;
+    render();
+  };
+  modal.querySelector('#modal-save').onclick = async ()=>{
+    const btn = modal.querySelector('#modal-save');
+    btn.disabled=true; btn.textContent='Saqlanmoqda...';
+    const newStatus = modal.querySelector('#modal-status').value;
+    if(newStatus === 'hal' && item.status !== 'hal'){
+      item.resolvedAt = Date.now(); // 2 kunlik avtomatik o'chirish hisobi shu yerdan boshlanadi
+    }else if(newStatus !== 'hal'){
+      delete item.resolvedAt;
+    }
+    item.status = newStatus;
+    item.note = modal.querySelector('#modal-note').value.trim();
+    await saveComplaint(item.code, item);
+    state.adminModalCode = null;
+    render();
+  };
+  return bg;
+}
+
+function customConfirm(message){
+  return new Promise(resolve=>{
+    const bg = document.createElement('div');
+    bg.className = 'modal-bg';
+    bg.style.zIndex = '200';
+    bg.innerHTML = `<div class="modal" style="max-width:340px;text-align:center;">
+      <p style="font-size:14.5px;color:var(--text-ink);margin:4px 0 20px;line-height:1.5;">${message}</p>
+      <div style="display:flex;gap:10px;">
+        <button id="cc-cancel" class="btn-ghost" style="flex:1;">Bekor qilish</button>
+        <button id="cc-ok" class="btn-primary" style="flex:1;background:var(--red);box-shadow:none;color:#fff;">Ha, o'chirish</button>
+      </div>
+    </div>`;
+    document.body.appendChild(bg);
+    const cleanup = (val)=>{ bg.remove(); resolve(val); };
+    bg.querySelector('#cc-cancel').onclick = ()=>cleanup(false);
+    bg.querySelector('#cc-ok').onclick = ()=>cleanup(true);
+    bg.onclick = (e)=>{ if(e.target===bg) cleanup(false); };
+  });
+}
+
+async function deleteComplaintPermanently(code){
+  lsDel('complaint:'+code);
+  const idx = await getIndex();
+  await saveIndex(idx.filter(c=>c!==code));
+}
+
+async function cleanupExpiredComplaints(){
+  const idx = await getIndex();
+  if(!idx.length) return;
+  const now = Date.now();
+  const keep = [];
+  let changed = false;
+  for(const code of idx){
+    const item = await getComplaint(code);
+    if(!item){ changed = true; continue; } // already gone somehow, drop from index
+    if(item.status === 'hal' && item.resolvedAt && (now - item.resolvedAt) >= AUTO_DELETE_MS){
+      lsDel('complaint:'+code);
+      changed = true;
+    }else{
+      keep.push(code);
+    }
+  }
+  if(changed) await saveIndex(keep);
+}
+
+async function loadAdminData(){
+  state.adminLoading = true; state.adminItems = [];
+  render();
+  await cleanupExpiredComplaints();
+  const idx = await getIndex();
+  const results = [];
+  for(const code of idx){
+    const c = await getComplaint(code);
+    if(c){ results.push(c); state.adminItems = results.slice(); render(); }
+  }
+  state.adminLoading = false;
+  render();
+}
+
+render();
+cleanupExpiredComplaints().catch(()=>{});
+</script>
+</body>
+</html>
